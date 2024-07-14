@@ -102,7 +102,18 @@ def get_ratings(session, cid, ratings):
                 continue
         rank[i['name']] = i['rank']
         if i['name'] not in ratings:
-            ratings[i['name']] = [{'rating': 1500, 'cid': 0}]
+            rating = 1500
+            if "NOI" in data['contestInfo']['title']:
+                rating = 2400
+            elif "省选" in data['contestInfo']['title']:
+                rating = 2200
+            elif "A" in data['contestInfo']['title']:
+                rating = 1800
+            elif "B" in data['contestInfo']['title']:
+                rating = 1700
+            elif "C" in data['contestInfo']['title']:
+                rating = 1500
+            ratings[i['name']] = [{'rating': rating, 'cid': 0}]
 
     if(len(rank) == 0):
         return ratings
