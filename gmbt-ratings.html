@@ -33,7 +33,7 @@
         const params = new URLSearchParams(paramsStr)
         var rank = 1;
         for (const [name, rating] of Object.entries(res['ratings'])) {
-          $('.table tbody').append(`<tr><td>${rank}</td><td><a href="https://gmoj.net/senior/#users/${name}"><span class="label label-info">${name}</span></a></td><td>${rating[rating.length - 1]['rating']}</td></tr>`);
+          $('.table tbody').append(`<tr><td>${rank}</td><td><a target="_parent" href="https://gmoj.net/senior/#users/${name}"><span class="label label-info">${name}</span></a></td><td>${rating[rating.length - 1]['rating']}</td></tr>`);
           rank ++;
           if(rank > parseInt(params.get('rank'))) {
             break;
