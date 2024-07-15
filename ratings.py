@@ -5,7 +5,8 @@ import math
 import logging
 import time
 
-
+fake_rating = [0, 500, 350, 250, 150, 100, 50]
+fake_rating_sum = [0, 500, 850, 1100, 1250, 1350, 1400]
 requests.adapters.DEFAULT_RETRIES = 5
 
 logging.basicConfig(level = logging.DEBUG, format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -19,11 +20,11 @@ def get_seed(name, rating, ratings):
     seed = 1
     for j, j_rating in ratings.items():
         if name != j:
-            seed += get_win_rate(j_rating[-1]['rating'], rating)
+            seed += get_win_rate(j_rating, rating)
 
     return seed
 
-def get_delta(name, rating, seed, rank):
+def get_delta(name, rating, seed, rank, ratings):
     """计算选手的评分变化量"""
     m = math.sqrt(seed * rank)
     l, r = 100, 4000
@@ -85,41 +86,40 @@ def get_ratings(session, cid, ratings):
         return ratings
 
     data = response.json()
-    
-    left, right = 0, 4000
-
-    if "A" in data['contestInfo']['title']:
-        left, right = 0, 1900
-    elif "B" in data['contestInfo']['title']:
-        left, right = 0, 1800
-    elif "C" in data['contestInfo']['title']:
-        left, right = 0, 1700
 
     rank = {}
+    real_ratings = {}
+
     for i in data['data']:
-        if i['name'] in ratings:
-            if ratings[i['name']][-1]['rating'] < left or ratings[i['name']][-1]['rating'] > right:
-                continue
         rank[i['name']] = i['rank']
         if i['name'] not in ratings:
-            rating = 1500
+            content_num = 1
+            last_rating = 0
+        else:
+            content_num = len(ratings[i['name']]) + 1
+            last_rating = ratings[i['name']][-1]['rating']
+
+        if content_num <= 6:
+            rating_rate = 1.0
             if "NOI" in data['contestInfo']['title']:
-                rating = 2400
+                rating_rate = 2000 / 1400
             elif "省选" in data['contestInfo']['title']:
-                rating = 2200
+                rating_rate = 1800 / 1400
             elif "A" in data['contestInfo']['title']:
-                rating = 1800
+                rating_rate = 1600 / 1400
             elif "B" in data['contestInfo']['title']:
-                rating = 1700
+                rating_rate = 1500 / 1400
             elif "C" in data['contestInfo']['title']:
-                rating = 1500
-            ratings[i['name']] = [{'rating': rating, 'cid': 0}]
+                rating_rate = 1.0
+            real_ratings[i['name']] = 1400 * rating_rate + last_rating - fake_rating_sum[content_num - 1] * rating_rate
+        else:
+            real_ratings[i['name']] = last_rating
 
     if(len(rank) == 0):
         return ratings
 
-    seeds = {i: get_seed(i, ratings[i][-1]['rating'], ratings) for i in rank}
-    deltas = {i: get_delta(i, ratings[i][-1]['rating'], seeds[i], rank[i]) for i in rank}
+    seeds = {i: get_seed(i, real_ratings[i], real_ratings) for i in rank}
+    deltas = {i: get_delta(i, real_ratings[i], seeds[i], rank[i], real_ratings) for i in rank}
 
     inc1 = get_inc_1(deltas)
     for i in deltas:
@@ -130,7 +130,35 @@ def get_ratings(session, cid, ratings):
         deltas[i] += inc2
 
     for i in deltas:
-        ratings[i].append({'rating': ratings[i][-1]['rating'] + deltas[i], 'cid': cid})
+        if i not in ratings:
+            content_num = 1
+            last_rating = 0
+        else:
+            content_num = len(ratings[i]) + 1
+            last_rating = ratings[i][-1]['rating']
+
+        
+        rating_rate = 1.0
+        if "NOI" in data['contestInfo']['title']:
+            rating_rate = 2400 / 1400
+        elif "省选" in data['contestInfo']['title']:
+            rating_rate = 2000 / 1400
+        elif "A" in data['contestInfo']['title']:
+            rating_rate = 1800 / 1400
+        elif "B" in data['contestInfo']['title']:
+            rating_rate = 1500 / 1400
+        elif "C" in data['contestInfo']['title']:
+            rating_rate = 1.0
+        
+        if content_num <= 6:
+            new_rating = last_rating + fake_rating[content_num] * rating_rate + deltas[i]
+        else:
+            new_rating = last_rating + deltas[i]
+
+        if content_num == 1:
+            ratings[i] = []
+        
+        ratings[i].append({'rating': new_rating, 'cid': cid})
 
     response.close()
     return ratings
