@@ -1,0 +1,30 @@
+name: Update Ratings
+on:
+  schedule:
+  # 在每天的12点01分，UTC比我们慢8小时
+    - cron:  1 4 * * * 
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Git Credentials
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+      - name: Write username.txt and password.txt
+        run: |
+          echo "${{ secrets.USERNAME }}" > username.txt
+          echo "${{ secrets.PASSWORD }}" > password.txt
+      - name: Run Script
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+      - run: pip install requests
+      - run: python ratings.py

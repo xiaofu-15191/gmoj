@@ -51,12 +51,14 @@ def get_inc_2(deltas):
 
 def login():
     """登录到竞赛网站"""
-    with open('account.json', 'r', encoding='utf-8') as f: 
-        account = json.load(f)
+    with open('username.txt', 'r', encoding='utf-8') as f: 
+        username = f.read()
+    with open('password.txt', 'r', encoding='utf-8') as f: 
+        password = f.read()
 
     data = {
-        'username': account['username'],
-        'password': base64.b64decode(account['password']).decode("utf-8")
+        'username': username,
+        'password': base64.b64decode(password).decode("utf-8")
     }
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36'}
     url = 'https://gmoj.net/senior/index.php/main/login'
@@ -69,6 +71,10 @@ def get_ratings(session, cid, ratings):
     """获取比赛的评分数据"""
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36'}
     response = session.get('https://gmoj.net/senior/index.php/contest/home/' + str(cid), headers=headers)
+    if "用户名" in response.text:
+        response.close()
+        logging.info("Do not login.")
+        return -1
     if "Invalid contest!" in response.text:
         response.close()
         return -1
