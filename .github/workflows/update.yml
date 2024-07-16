@@ -18,15 +18,13 @@ jobs:
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-      - name: Write username.txt and password.txt
-        run: |
-          echo "${{ secrets.USERNAME }}" > username.txt
-          echo "${{ secrets.PASSWORD }}" > password.txt
 
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
       - name: Run Script
       - run: |
+          echo "${{ secrets.USERNAME }}" > username.txt
+          echo "${{ secrets.PASSWORD }}" > password.txt
           pip install requests
           python ratings.py
