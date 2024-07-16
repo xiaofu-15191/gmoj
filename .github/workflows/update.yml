@@ -26,3 +26,7 @@ jobs:
           echo "${{ secrets.PASSWORD }}" > password.txt
           pip install requests
           python ratings.py
+      - run: |
+          git add .
+          git commit -m "[BOT] Update ratings"
+          git push
