@@ -22,9 +22,11 @@ jobs:
         run: |
           echo "${{ secrets.USERNAME }}" > username.txt
           echo "${{ secrets.PASSWORD }}" > password.txt
-      - name: Run Script
+
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
-      - run: pip install requests
-      - run: python ratings.py
+      - name: Run Script
+      - run: |
+          pip install requests
+          python ratings.py
