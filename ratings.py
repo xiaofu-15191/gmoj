@@ -173,7 +173,7 @@ logging.info("Login...")
 
 session = login()
 
-logging.info("Get ratings...")
+logging.info("Get data...")
 
 try:
     with open('ratings.json', 'r', encoding='utf-8') as f:
@@ -225,8 +225,11 @@ logging.info("Sort ratings...")
 ratings = dict(sorted(ratings.items(), key=lambda x: x[1][-1]['rating'], reverse=True))
 data['ratings'] = ratings
 
+logging.info("Write time...")
 
-logging.info("Save ratings...")
+data['time'] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
+logging.info("Save data...")
 
 with open("ratings.json", 'w', encoding='utf-8') as f:
     json.dump(data, f, ensure_ascii=False)
