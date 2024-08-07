@@ -2,8 +2,10 @@ name: Update Ratings
 on:
   schedule:
   # 在每天的12点01分，UTC比我们慢8小时
-  # 2024-08-07：比赛测评未完成，暂不更新
-    - cron:  1 6 * * * 
+    - cron:  1 4 * * * 
+  push:
+    branches:
+      - main
 
 permissions:
   contents: write
