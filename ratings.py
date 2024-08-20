@@ -97,6 +97,8 @@ def get_ratings(session, cid, ratings):
     real_ratings = {}
 
     for i in data['data']:
+        if i['name'] == '2020查昱名' and "A" in data['contestInfo']['title']:
+            continue
         rank[i['name']] = i['rank']
         if i['name'] not in ratings:
             content_num = 1
