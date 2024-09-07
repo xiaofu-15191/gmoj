@@ -1,8 +1,8 @@
 name: Update Ratings
 on:
   schedule:
-  # 在每天的12点01分，UTC比我们慢8小时
-    - cron:  1 4 * * * 
+  # 在每天的12点5分，UTC比我们慢8小时
+    - cron:  5 4 * * * 
   push:
     branches:
       - main
