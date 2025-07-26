@@ -380,8 +380,8 @@ const GmojTitle = 'GMOJ Better';
                     var text = "";
                     for (let j = 0; j <= line.length; j++) {
                         if (j != line.length && !line[j].includes('样例') && !line[j].includes('输入') && !line[j].includes('输出')) {
-                            if (line[j] != '') {
-                                text += line[j];
+                             if (line[j] != '') {
+                                text += line[j].replace(/\u00a0/g, ' ');
                                 text += '\n';
                             }
                         } else if (text != '') {
